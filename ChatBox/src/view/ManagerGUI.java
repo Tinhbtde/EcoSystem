@@ -1,6 +1,7 @@
 package view;
 
 import java.awt.EventQueue;
+import java.util.HashMap;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -15,8 +16,10 @@ public class ManagerGUI {
 
 	private JFrame frame;
 	private JTextField txtPort;
+	JTabbedPane tabbedPane;
 	private int port = 2508;
 
+	private HashMap<String, ChatPanel> chatPanels;
 	/**
 	 * Launch the application.
 	 */
@@ -59,12 +62,23 @@ public class ManagerGUI {
 		panel.add(txtPort);
 		txtPort.setColumns(10);
 		
-		JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
+		tabbedPane = new JTabbedPane(JTabbedPane.TOP);
 		frame.getContentPane().add(tabbedPane, BorderLayout.CENTER);
 		
 		txtPort.setText(port + ""); 
 		ServerThread serverThread = new ServerThread(port);
+		serverThread.setManagerGUI(this);
 		serverThread.start();
+		
+		chatPanels = new HashMap<String, ChatPanel>();
+	}
+	
+	public synchronized void addStaff(String name) {
+		if(!chatPanels.containsKey(name)) {
+			ChatPanel chat = new ChatPanel();
+			tabbedPane.add(name, chat);
+			chatPanels.put(name, chat);
+		}
 	}
 
 }

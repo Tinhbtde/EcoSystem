@@ -7,9 +7,20 @@ import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import model.Message;
+import view.ManagerGUI;
+
 public class ServerThread extends Thread {
 	private int port;
 	ServerSocket serverSocket;
+	ManagerGUI managerGUI;
+	
+	public ManagerGUI getManagerGUI() {
+		return managerGUI;
+	}
+	public void setManagerGUI(ManagerGUI managerGUI) {
+		this.managerGUI = managerGUI;
+	}
 	public ServerThread(int port) {
 		super();
 		this.port = port;
@@ -36,6 +47,10 @@ public class ServerThread extends Thread {
 				String s = (String)ois.readObject();
 				System.out.println (s);
 				
+				Message mess = new Message(s);
+				if(mess.getContent().equalsIgnoreCase("connect")) {
+					managerGUI.addStaff(mess.getSender());
+				}
 				OutputStream os = socket.getOutputStream();
 				ObjectOutputStream oos = new ObjectOutputStream(os);
 				oos.writeObject("OK!");
