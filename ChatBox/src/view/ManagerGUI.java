@@ -1,6 +1,7 @@
 package view;
 
 import java.awt.EventQueue;
+import java.net.InetAddress;
 import java.util.HashMap;
 
 import javax.swing.JFrame;
@@ -11,6 +12,7 @@ import javax.swing.JLabel;
 import javax.swing.JTextField;
 
 import control.ServerThread;
+import model.Message;
 
 public class ManagerGUI {
 
@@ -18,6 +20,7 @@ public class ManagerGUI {
 	private JTextField txtPort;
 	JTabbedPane tabbedPane;
 	private int port = 2508;
+	private String myIP;
 
 	private HashMap<String, ChatPanel> chatPanels;
 	/**
@@ -40,6 +43,12 @@ public class ManagerGUI {
 	 * Create the application.
 	 */
 	public ManagerGUI() {
+		try {
+			InetAddress inetAddress = InetAddress.getLocalHost();
+			myIP = inetAddress.getHostAddress();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		initialize();
 	}
 
@@ -73,12 +82,24 @@ public class ManagerGUI {
 		chatPanels = new HashMap<String, ChatPanel>();
 	}
 	
-	public synchronized void addStaff(String name) {
-		if(!chatPanels.containsKey(name)) {
+	public synchronized void addStaff(Message mess) {
+		if(!chatPanels.containsKey(mess.getSender())) {
 			ChatPanel chat = new ChatPanel();
-			tabbedPane.add(name, chat);
-			chatPanels.put(name, chat);
+			chat.setPort(port);
+			chat.setRecieverIP(mess.getSenderIP());
+			chat.setSenderIP(myIP);
+			chat.setSender("server");
+			chat.setReciever(mess.getSender());
+			tabbedPane.add(mess.getSender(), chat);
+			chatPanels.put(mess.getSender(), chat);
 		}
 	}
 
+	public synchronized void processStaff2Manager(Message mess) {
+		if(chatPanels.containsKey(mess.getSender())) {
+			ChatPanel chat = chatPanels.get(mess.getSender());
+			String s = mess.getSender() + " : " + mess.getContent() + "\n";
+			chat.appendText(s);
+		}
+	}
 }

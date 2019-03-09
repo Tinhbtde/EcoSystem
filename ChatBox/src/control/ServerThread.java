@@ -48,8 +48,11 @@ public class ServerThread extends Thread {
 				System.out.println (s);
 				
 				Message mess = new Message(s);
-				if(mess.getContent().equalsIgnoreCase("connect")) {
-					managerGUI.addStaff(mess.getSender());
+				if(mess.getId() == 1) {
+					managerGUI.addStaff(mess);
+				}
+				else if(mess.getId() == 2) {
+					managerGUI.processStaff2Manager(mess);
 				}
 				OutputStream os = socket.getOutputStream();
 				ObjectOutputStream oos = new ObjectOutputStream(os);

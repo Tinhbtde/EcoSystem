@@ -18,6 +18,7 @@ import java.awt.TextArea;
 
 import javax.swing.JTextArea;
 import java.awt.event.ActionListener;
+import java.net.InetAddress;
 import java.awt.event.ActionEvent;
 
 public class StaffGUI {
@@ -26,7 +27,8 @@ public class StaffGUI {
 	private JTextField txtStaff;
 	private JTextField txtServerIP;
 	private JTextField txtPort;
-
+	private String myIP;
+	private String myName;
 	/**
 	 * Launch the application.
 	 */
@@ -47,6 +49,13 @@ public class StaffGUI {
 	 * Create the application.
 	 */
 	public StaffGUI() {
+		
+		try {
+			InetAddress inetAddress = InetAddress.getLocalHost();
+			myIP = inetAddress.getHostAddress();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		initialize();
 	}
 
@@ -88,19 +97,26 @@ public class StaffGUI {
 		JButton btnConnect = new JButton("Connect");
 		btnConnect.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
+				int port = Integer.parseInt(txtPort.getText());
+				myName = txtStaff.getText(); 
 				ChatPanel chat = new ChatPanel();
+				chat.setPort(port);
+				chat.setRecieverIP(txtServerIP.getText());
+				chat.setSenderIP(myIP);
+				chat.setSender(myName);
+				chat.setReciever("server");
 				frame.getContentPane().add(chat, BorderLayout.CENTER);
 				frame.revalidate();
+				System.out.println(chat.getSender());
 				
 				Message mess = new Message();
-				mess.setSender(txtStaff.getText());
+				mess.setSender(myName);
 				mess.setReciever("server");
-				mess.setSenderIP("localhost");
+				mess.setSenderIP(myIP);
 				mess.setRecieverIP(txtServerIP.getText());
 				mess.setContent("connect");
 				mess.setId(1);
-				
-				int port = Integer.parseInt(txtPort.getText());
+				System.out.println(mess.getSender());
 				Client.send(txtServerIP.getText(), port, mess.toJson());
 			}
 		});
